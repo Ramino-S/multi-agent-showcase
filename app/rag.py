@@ -5,13 +5,11 @@ from typing import List, Dict, Any, Optional
 from pypdf import PdfReader
 from app.models import UploadedFile
 
-# Простая резервная база данных в памяти для текстовых чанков, когда ChromaDB не используется
-# Формат: {session_id: [{"text": str, "file_name": str, "chunk_index": int}]}
+# Фолбэк-хранилище в памяти (если ChromaDB недоступен)
 _fallback_vector_store: Dict[str, List[Dict[str, Any]]] = {}
 
 
 def clean_text(text: str) -> str:
-    """Базовая очистка текста."""
     text = re.sub(r'\s+', ' ', text)
     return text.strip()
 
@@ -21,7 +19,6 @@ def chunk_text(text: str, chunk_size: int = 800, chunk_overlap: int = 150) -> Li
     words = text.split()
     chunks = []
     
-    # Простая разбивка на основе количества слов
     i = 0
     while i < len(words):
         chunk_words = words[i : i + chunk_size]
@@ -55,7 +52,6 @@ def extract_text_from_excel(file_path: str) -> str:
             if df.empty:
                 continue
             text_parts.append(f"Sheet Name: {sheet_name}")
-            # Преобразование в представление строки с разделением табуляцией для более чистого чтения
             csv_str = df.to_csv(index=False, sep="\t")
             text_parts.append(csv_str)
         return "\n\n".join(text_parts)
@@ -136,7 +132,6 @@ def index_document(file_id: str, session_id: str, file_name: str, file_path: str
         except Exception as chroma_err:
             print(f"⚠️ ChromaDB indexing failed ({str(chroma_err)}). Falling back to pure Python TF-IDF engine.")
 
-        # Резервный индекс в памяти
         if session_id not in _fallback_vector_store:
             _fallback_vector_store[session_id] = []
 
@@ -154,27 +149,22 @@ def index_document(file_id: str, session_id: str, file_name: str, file_path: str
         raise e
 
 
-# Вспомогательная функция для легковесного представления TF-IDF и косинусного сходства
 def tokenize(text: str) -> List[str]:
-    """Токенизация и приведение текста к нижнему регистру."""
     return re.findall(r'\b\w{3,15}\b', text.lower())
 
 
 def query_rag(session_id: str, query: str, top_k: int = 3) -> str:
-    """Запрос к хранилищу документов (ChromaDB или резервному) для поиска частей, релевантных запросу."""
+    """Поиск частей документа, наиболее релевантных запросу."""
     if not query:
         return ""
 
-    # Сначала пробуем ChromaDB
     try:
         import chromadb
         chroma_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "chroma_db")
         if os.path.exists(chroma_dir):
             client = chromadb.PersistentClient(path=chroma_dir)
-            # Проверяем, существует ли коллекция
             collection_name = f"session_{session_id.replace('-', '_')}"
             
-            # Простая проверка существования коллекции путем листинга
             collections = [c.name for c in client.list_collections()]
             if collection_name in collections:
                 collection = client.get_collection(name=collection_name)
@@ -183,7 +173,6 @@ def query_rag(session_id: str, query: str, top_k: int = 3) -> str:
                     n_results=top_k
                 )
                 
-                # Форматирование результатов
                 if results and 'documents' in results and results['documents']:
                     docs = results['documents'][0]
                     sources = results['metadatas'][0] if 'metadatas' in results else []
@@ -197,10 +186,9 @@ def query_rag(session_id: str, query: str, top_k: int = 3) -> str:
     except Exception as chroma_err:
         print(f"⚠️ ChromaDB query failed ({str(chroma_err)}). Trying pure Python TF-IDF search.")
 
-    # Резервный поиск сходства: кастомный TF-IDF на чистом Python
-    # ПРИМЕЧАНИЕ: Данная легковесная реализация TF-IDF используется как резервная
-    # для демонстрационного стенда, чтобы избежать тяжелых зависимостей (scikit-learn, numpy).
-    # В промышленной среде следует использовать pgvector, Elasticsearch или ChromaDB.
+    # Фолбэк-поиск: легковесный TF-IDF на чистом Python.
+    # Используется как резервный вариант для демо-стенда, чтобы избежать тяжелых зависимостей (scikit-learn, numpy).
+    # В проде рекомендуется использовать pgvector / Elasticsearch / ChromaDB.
     session_docs = _fallback_vector_store.get(session_id, [])
     if not session_docs:
         return ""
@@ -234,7 +222,6 @@ def query_rag(session_id: str, query: str, top_k: int = 3) -> str:
         query_norm = 0.0
         doc_norm = 0.0
         
-        # Пересечение токенов запроса и документа
         for q_token in set(query_tokens):
             w_q = query_tokens.count(q_token) * idf.get(q_token, 1.0)
             w_d = tf.get(q_token, 0) * idf.get(q_token, 1.0)

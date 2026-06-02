@@ -17,8 +17,7 @@ from typing import Dict, Any, Optional
 
 router = APIRouter(prefix="/sessions", tags=["Agent Sessions"])
 
-
-# Словарь локализованных сообщений для вывода в SSE-поток
+# Локализованные логи для SSE-потока
 LOG_MESSAGES = {
     "ru": {
         "start": "Запуск процесса выполнения...",
@@ -81,7 +80,6 @@ async def create_session(
     db: AsyncSession = Depends(get_db)
 ) -> AgentSession:
     """Создать новую сессию/поток агента."""
-    # Проверить, существует ли уже сессия
     result = await db.execute(select(AgentSession).where(AgentSession.id == session_in.id))
     existing_session = result.scalars().first()
     if existing_session:
@@ -105,8 +103,8 @@ async def create_session(
 class NodeStatusCallbackHandler(AsyncCallbackHandler):
     def __init__(self, queue: asyncio.Queue):
         self.queue = queue
-        self.run_to_node = {}  # сопоставляет run_id узла верхнего уровня с node_name
-        self.parent_map = {}   # сопоставляет run_id с parent_run_id
+        self.run_to_node = {}  # run_id -> node_name
+        self.parent_map = {}   # run_id -> parent_run_id
 
     def _has_active_node_ancestor(self, parent_run_id: Any) -> bool:
         curr = parent_run_id
@@ -188,7 +186,7 @@ async def run_agents(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ) -> StreamingResponse:
-    """Запустить граф мультиагентов с потоковым ответом (Server-Sent Events)."""
+    """Запустить граф мультиагентов с потоковым ответом (SSE)."""
     result = await db.execute(
         select(AgentSession).where(AgentSession.id == session_id, AgentSession.user_id == current_user.id)
     )
@@ -250,11 +248,9 @@ async def run_agents(
                 
                 final_res = ""
                 if "messages" in result and result["messages"]:
-                    # Найти наиболее существенное сообщение ИИ, представляющее отчет или код.
-                    # Игнорировать первоначальный запрос пользователя (result["messages"][0]).
                     ai_messages = [msg for msg in result["messages"][1:] if hasattr(msg, "content") and msg.content]
                     if ai_messages:
-                        # Выбрать самое длинное сообщение, так как оно представляет основной результат
+                        # Выбираем финальный ответ модели (наиболее длинное сообщение)
                         longest_msg = max(ai_messages, key=lambda m: len(m.content or ""))
                         final_res = longest_msg.content
                     else:
