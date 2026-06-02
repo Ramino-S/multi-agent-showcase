@@ -62,7 +62,6 @@ NODE_TRANSLATIONS = {
 }
 
 
-
 @router.get("/", response_model=List[AgentSessionResponse])
 async def list_sessions(
     current_user: User = Depends(get_current_user),
