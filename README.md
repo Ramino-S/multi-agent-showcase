@@ -12,6 +12,7 @@
 *   **Styling & UI:** Tailwind CSS + Vanilla CSS, XYFlow/React, Framer Motion.
 *   **AI Integrations:** OpenRouter API.
 *   **Auth & Security:** JWT (JSON Web Tokens) с использованием библиотеки `PyJWT` для безопасной аутентификации.
+*   **Containerization & Sandbox:** Docker & Docker Compose (контейнеризация сервисов приложения и запуск изолированной песочницы выполнения кода на базе образа `python:3.11-slim`).
 
 ---
 
