@@ -1,152 +1,45 @@
-# Скомпилированные файлы байт-кода / оптимизированные / DLL
+# Системные файлы ОС
+.DS_Store
+Thumbs.db
+
+# Окружение и зависимости Node.js / Next.js
+node_modules/
+.next/
+out/
+build/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Скомпилированные файлы Python
 __pycache__/
 *.py[cod]
 *$py.class
-
-# Расширения C
 *.so
-
-# Сборка и дистрибуция
-bin/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# PyInstaller
-# Обычно эти файлы генерируются скриптом из шаблона перед сборкой
-*.manifest
-*.spec
-
-# Логи установщика
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Отчеты о тестировании и покрытии кода
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.log
-.hypothesis/
 .pytest_cache/
-cover/
+.coverage
+htmlcov/
 
-# Локализация / переводы
-*.mo
-*.pot
-
-# Файлы Django:
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-
-# Файлы Flask:
-instance/
-.webassets-cache
-
-# Файлы Scrapy:
-.scrapy
-
-# Документация Sphinx
-docs/_build/
-
-# PyBuilder
-.pybuilder/
-target/
-
-# Блокноты Jupyter
-.ipynb_checkpoints
-
-# IPython
-profile_default/
-ipython_config.py
-
-# Настройки pyenv
-# Для библиотек и пакетов эти файлы часто игнорируют
-# .python-version
-
-# Настройки pipenv
-# Рекомендуется включать Pipfile.lock в систему контроля версий, но в некоторых случаях его игнорируют.
-# Pipfile.lock
-
-# Настройки poetry
-# Рекомендуется включать poetry.lock в систему контроля версий.
-# poetry.lock
-
-# Настройки pdm
-# Рекомендуется включать pdm.lock в систему контроля версий.
-# pdm.lock
-# Игнорирование сборки pdm
-.pdm-build/
-
-# PEP 582 (pdm-project)
-__pypackages__/
-
-# Окружение Celery
-celerybeat-schedule
-celerybeat.pid
-
-# Файлы SageMath
-*.sage.py
-
-# Виртуальные окружения
+# Виртуальные окружения и секреты
 .env
 .venv
 env/
 venv/
 ENV/
-env.bak/
-venv.bak/
 
-# Настройки Spyder
-.spyderproject
-.spyproject
-
-# Настройки Rope
-.ropeproject
-
-# Документация mkdocs
-/site
-
-# Кэш mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Средство проверки типов Pyre
-.pyre/
-
-# Статический анализатор pytype
-.pytype/
-
-# Отладочные символы Cython
-cython_debug/
-
-# Локальные базы данных и пользовательские данные
+# Локальные базы данных и артефакты выполнения
 chroma_db/
 multiagent_artifacts/
 *.db
+*.sqlite3
+*.sqlite3-journal
 
-# Системные файлы ОС
-.DS_Store
-Thumbs.db
+# Настройки сред разработки (IDE)
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
