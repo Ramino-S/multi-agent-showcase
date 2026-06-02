@@ -18,7 +18,7 @@ from typing import Dict, Any, Optional
 router = APIRouter(prefix="/sessions", tags=["Agent Sessions"])
 
 
-# Dictionary of localized messages for SSE streaming output
+# Словарь локализованных сообщений для вывода в SSE-поток
 LOG_MESSAGES = {
     "ru": {
         "start": "Запуск процесса выполнения...",
@@ -67,7 +67,7 @@ async def list_sessions(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ) -> List[AgentSession]:
-    """Get all agent sessions for the currently authenticated user."""
+    """Получить все сессии агента для текущего аутентифицированного пользователя."""
     result = await db.execute(
         select(AgentSession).where(AgentSession.user_id == current_user.id).order_by(AgentSession.created_at.desc())
     )
@@ -80,8 +80,8 @@ async def create_session(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ) -> AgentSession:
-    """Create a new agent session/flow."""
-    # Check if session already exists
+    """Создать новую сессию/поток агента."""
+    # Проверить, существует ли уже сессия
     result = await db.execute(select(AgentSession).where(AgentSession.id == session_in.id))
     existing_session = result.scalars().first()
     if existing_session:
@@ -105,8 +105,8 @@ async def create_session(
 class NodeStatusCallbackHandler(AsyncCallbackHandler):
     def __init__(self, queue: asyncio.Queue):
         self.queue = queue
-        self.run_to_node = {}  # maps top-level node run_id to node_name
-        self.parent_map = {}   # maps run_id to parent_run_id
+        self.run_to_node = {}  # сопоставляет run_id узла верхнего уровня с node_name
+        self.parent_map = {}   # сопоставляет run_id с parent_run_id
 
     def _has_active_node_ancestor(self, parent_run_id: Any) -> bool:
         curr = parent_run_id
@@ -188,7 +188,7 @@ async def run_agents(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ) -> StreamingResponse:
-    """Run the multi-agent graph with streaming response (Server-Sent Events)."""
+    """Запустить граф мультиагентов с потоковым ответом (Server-Sent Events)."""
     result = await db.execute(
         select(AgentSession).where(AgentSession.id == session_id, AgentSession.user_id == current_user.id)
     )
@@ -250,11 +250,11 @@ async def run_agents(
                 
                 final_res = ""
                 if "messages" in result and result["messages"]:
-                    # Find the most significant AI message representing a report or code.
-                    # Ignore the initial user request (result["messages"][0]).
+                    # Найти наиболее существенное сообщение ИИ, представляющее отчет или код.
+                    # Игнорировать первоначальный запрос пользователя (result["messages"][0]).
                     ai_messages = [msg for msg in result["messages"][1:] if hasattr(msg, "content") and msg.content]
                     if ai_messages:
-                        # Select the longest message, as it represents the main result
+                        # Выбрать самое длинное сообщение, так как оно представляет основной результат
                         longest_msg = max(ai_messages, key=lambda m: len(m.content or ""))
                         final_res = longest_msg.content
                     else:

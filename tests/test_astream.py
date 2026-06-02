@@ -4,7 +4,7 @@ import asyncio
 import uuid
 from typing import Dict, Any, Optional, List
 
-# Add parent directory to sys.path so app imports work directly
+# Добавляем родительскую директорию в sys.path, чтобы импорт app работал напрямую
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.agents.orchestrator import agent_graph, HumanMessage
@@ -13,8 +13,8 @@ from langchain_core.callbacks import AsyncCallbackHandler
 class NodeStatusCallbackHandler(AsyncCallbackHandler):
     def __init__(self, queue: asyncio.Queue):
         self.queue = queue
-        self.run_to_node = {}  # maps top-level node run_id to node_name
-        self.parent_map = {}   # maps run_id to parent_run_id
+        self.run_to_node = {}  # сопоставляет run_id узла верхнего уровня с node_name
+        self.parent_map = {}   # сопоставляет run_id с parent_run_id
 
     def _has_active_node_ancestor(self, parent_run_id: Any) -> bool:
         curr = parent_run_id

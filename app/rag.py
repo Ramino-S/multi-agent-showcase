@@ -5,23 +5,23 @@ from typing import List, Dict, Any, Optional
 from pypdf import PdfReader
 from app.models import UploadedFile
 
-# Simple fallback in-memory database for text chunks when ChromaDB is not used
-# Format: {session_id: [{"text": str, "file_name": str, "chunk_index": int}]}
+# Простая резервная база данных в памяти для текстовых чанков, когда ChromaDB не используется
+# Формат: {session_id: [{"text": str, "file_name": str, "chunk_index": int}]}
 _fallback_vector_store: Dict[str, List[Dict[str, Any]]] = {}
 
 
 def clean_text(text: str) -> str:
-    """Basic text cleaning."""
+    """Базовая очистка текста."""
     text = re.sub(r'\s+', ' ', text)
     return text.strip()
 
 
 def chunk_text(text: str, chunk_size: int = 800, chunk_overlap: int = 150) -> List[str]:
-    """Split text into overlapping chunks of a target size."""
+    """Разделение текста на перекрывающиеся чанки целевого размера."""
     words = text.split()
     chunks = []
     
-    # Simple split based on word count
+    # Простая разбивка на основе количества слов
     i = 0
     while i < len(words):
         chunk_words = words[i : i + chunk_size]
@@ -34,7 +34,7 @@ def chunk_text(text: str, chunk_size: int = 800, chunk_overlap: int = 150) -> Li
 
 
 def extract_text_from_pdf(file_path: str) -> str:
-    """Extract text content from a PDF file using PyPDF."""
+    """Извлечение текстового содержимого из PDF-файла с помощью PyPDF."""
     reader = PdfReader(file_path)
     text = ""
     for page in reader.pages:
@@ -45,7 +45,7 @@ def extract_text_from_pdf(file_path: str) -> str:
 
 
 def extract_text_from_excel(file_path: str) -> str:
-    """Extract readable text representing tables from an Excel file."""
+    """Извлечение читаемого текста, представляющего таблицы, из файла Excel."""
     import pandas as pd
     try:
         xls = pd.ExcelFile(file_path)
@@ -55,7 +55,7 @@ def extract_text_from_excel(file_path: str) -> str:
             if df.empty:
                 continue
             text_parts.append(f"Sheet Name: {sheet_name}")
-            # Convert to tab-separated string representation for cleaner reading
+            # Преобразование в представление строки с разделением табуляцией для более чистого чтения
             csv_str = df.to_csv(index=False, sep="\t")
             text_parts.append(csv_str)
         return "\n\n".join(text_parts)
@@ -65,7 +65,7 @@ def extract_text_from_excel(file_path: str) -> str:
 
 
 def extract_text_from_csv(file_path: str) -> str:
-    """Extract text from a CSV file."""
+    """Извлечение текста из CSV-файла."""
     import pandas as pd
     try:
         df = pd.read_csv(file_path)
@@ -79,7 +79,7 @@ def extract_text_from_csv(file_path: str) -> str:
 
 
 def extract_text_from_file(file_path: str, mime_type: str) -> str:
-    """Extract raw text from PDF, Excel, CSV, or TXT files."""
+    """Извлечение необработанного текста из файлов PDF, Excel, CSV или TXT."""
     mime_lower = mime_type.lower()
     file_path_lower = file_path.lower()
     
@@ -90,13 +90,13 @@ def extract_text_from_file(file_path: str, mime_type: str) -> str:
     elif "csv" in mime_lower or file_path_lower.endswith(".csv"):
         return extract_text_from_csv(file_path)
     else:
-        # Assume plain text / markdown
+        # Предполагаем простой текст / markdown
         with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
             return f.read()
 
 
 def index_document(file_id: str, session_id: str, file_name: str, file_path: str, mime_type: str):
-    """Parse document and index its contents into vector store / fallback system."""
+    """Анализ документа и индексация его содержимого в векторное хранилище / резервную систему."""
     try:
         raw_text = extract_text_from_file(file_path, mime_type)
         cleaned = clean_text(raw_text)
@@ -136,7 +136,7 @@ def index_document(file_id: str, session_id: str, file_name: str, file_path: str
         except Exception as chroma_err:
             print(f"⚠️ ChromaDB indexing failed ({str(chroma_err)}). Falling back to pure Python TF-IDF engine.")
 
-        # Fallback index in memory
+        # Резервный индекс в памяти
         if session_id not in _fallback_vector_store:
             _fallback_vector_store[session_id] = []
 
@@ -154,27 +154,27 @@ def index_document(file_id: str, session_id: str, file_name: str, file_path: str
         raise e
 
 
-# Helper functions for lightweight TF-IDF and Cosine Similarity implementation
+# Вспомогательная функция для легковесного представления TF-IDF и косинусного сходства
 def tokenize(text: str) -> List[str]:
-    """Tokenize and convert text to lowercase."""
+    """Токенизация и приведение текста к нижнему регистру."""
     return re.findall(r'\b\w{3,15}\b', text.lower())
 
 
 def query_rag(session_id: str, query: str, top_k: int = 3) -> str:
-    """Query document store (ChromaDB or fallback) to search for segments relevant to the query."""
+    """Запрос к хранилищу документов (ChromaDB или резервному) для поиска частей, релевантных запросу."""
     if not query:
         return ""
 
-    # Try ChromaDB first
+    # Сначала пробуем ChromaDB
     try:
         import chromadb
         chroma_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "chroma_db")
         if os.path.exists(chroma_dir):
             client = chromadb.PersistentClient(path=chroma_dir)
-            # Check if collection exists
+            # Проверяем, существует ли коллекция
             collection_name = f"session_{session_id.replace('-', '_')}"
             
-            # Simple check for collection existence via listing
+            # Простая проверка существования коллекции путем листинга
             collections = [c.name for c in client.list_collections()]
             if collection_name in collections:
                 collection = client.get_collection(name=collection_name)
@@ -183,7 +183,7 @@ def query_rag(session_id: str, query: str, top_k: int = 3) -> str:
                     n_results=top_k
                 )
                 
-                # Format results
+                # Форматирование результатов
                 if results and 'documents' in results and results['documents']:
                     docs = results['documents'][0]
                     sources = results['metadatas'][0] if 'metadatas' in results else []
@@ -197,10 +197,10 @@ def query_rag(session_id: str, query: str, top_k: int = 3) -> str:
     except Exception as chroma_err:
         print(f"⚠️ ChromaDB query failed ({str(chroma_err)}). Trying pure Python TF-IDF search.")
 
-    # Fallback similarity search: custom TF-IDF in pure Python
-    # NOTE: This lightweight TF-IDF implementation is used as a fallback
-    # for the demonstration stand to avoid heavy dependencies (scikit-learn, numpy).
-    # In a production environment, use pgvector, Elasticsearch, or ChromaDB.
+    # Резервный поиск сходства: кастомный TF-IDF на чистом Python
+    # ПРИМЕЧАНИЕ: Данная легковесная реализация TF-IDF используется как резервная
+    # для демонстрационного стенда, чтобы избежать тяжелых зависимостей (scikit-learn, numpy).
+    # В промышленной среде следует использовать pgvector, Elasticsearch или ChromaDB.
     session_docs = _fallback_vector_store.get(session_id, [])
     if not session_docs:
         return ""
@@ -234,7 +234,7 @@ def query_rag(session_id: str, query: str, top_k: int = 3) -> str:
         query_norm = 0.0
         doc_norm = 0.0
         
-        # Intersection of query and document tokens
+        # Пересечение токенов запроса и документа
         for q_token in set(query_tokens):
             w_q = query_tokens.count(q_token) * idf.get(q_token, 1.0)
             w_d = tf.get(q_token, 0) * idf.get(q_token, 1.0)
