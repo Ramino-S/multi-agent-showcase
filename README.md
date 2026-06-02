@@ -4,7 +4,7 @@
 
 ---
 
-## 🚀 Стек технологий / Tech Stack
+## 🚀 Стек технологий
 
 *   **Backend Core:** Python, FastAPI, Uvicorn.
 *   **Database & RAG:** SQLite + SQLAlchemy, ChromaDB с кастомным TF-IDF / Cosine Similarity фолбеком для отказоустойчивости.
