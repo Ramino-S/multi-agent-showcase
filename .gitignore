@@ -1,12 +1,12 @@
-# Byte-compiled / optimized / DLL files
+# Скомпилированные файлы байт-кода / оптимизированные / DLL
 __pycache__/
 *.py[cod]
 *$py.class
 
-# C extensions
+# Расширения C
 *.so
 
-# Distribution / packaging
+# Сборка и дистрибуция
 bin/
 build/
 develop-eggs/
@@ -27,16 +27,15 @@ share/python-wheels/
 MANIFEST
 
 # PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+# Обычно эти файлы генерируются скриптом из шаблона перед сборкой
 *.manifest
 *.spec
 
-# Installer logs
+# Логи установщика
 pip-log.txt
 pip-delete-this-directory.txt
 
-# Unit test / coverage reports
+# Отчеты о тестировании и покрытии кода
 htmlcov/
 .tox/
 .nox/
@@ -51,69 +50,66 @@ coverage.xml
 .pytest_cache/
 cover/
 
-# Translations
+# Локализация / переводы
 *.mo
 *.pot
 
-# Django stuff:
+# Файлы Django:
 *.log
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
 
-# Flask stuff:
+# Файлы Flask:
 instance/
 .webassets-cache
 
-# Scrapy stuff:
+# Файлы Scrapy:
 .scrapy
 
-# Sphinx documentation
+# Документация Sphinx
 docs/_build/
 
 # PyBuilder
 .pybuilder/
 target/
 
-# Jupyter Notebook
+# Блокноты Jupyter
 .ipynb_checkpoints
 
 # IPython
 profile_default/
 ipython_config.py
 
-# pyenv
-#   For a library or package, you might want to ignore these files since the code is
-#   intended to be run in multiple environments; otherwise, check them in:
+# Настройки pyenv
+# Для библиотек и пакетов эти файлы часто игнорируют
 # .python-version
 
-# pipenv
-#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
-#   However, in case of collaboration, if used in a closed environment or package, it is sometimes
-#   ignored.
+# Настройки pipenv
+# Рекомендуется включать Pipfile.lock в систему контроля версий, но в некоторых случаях его игнорируют.
 # Pipfile.lock
 
-# poetry
-#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
-#   poetry.lock
+# Настройки poetry
+# Рекомендуется включать poetry.lock в систему контроля версий.
+# poetry.lock
 
-# pdm
-#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
+# Настройки pdm
+# Рекомендуется включать pdm.lock в систему контроля версий.
 # pdm.lock
-#   pdm build standard ignores
+# Игнорирование сборки pdm
 .pdm-build/
 
-# PEP 582; used by e.g. github.com/lincolnloop/layman and github.com/pdm-project/pdm
+# PEP 582 (pdm-project)
 __pypackages__/
 
-# Celery stuff
+# Окружение Celery
 celerybeat-schedule
 celerybeat.pid
 
-# SageMath parsed files
+# Файлы SageMath
 *.sage.py
 
-# Environments
+# Виртуальные окружения
 .env
 .venv
 env/
@@ -122,35 +118,35 @@ ENV/
 env.bak/
 venv.bak/
 
-# Spyder project settings
+# Настройки Spyder
 .spyderproject
 .spyproject
 
-# Rope project settings
+# Настройки Rope
 .ropeproject
 
-# mkdocs documentation
+# Документация mkdocs
 /site
 
-# mypy
+# Кэш mypy
 .mypy_cache/
 .dmypy.json
 dmypy.json
 
-# Pyre type checker
+# Средство проверки типов Pyre
 .pyre/
 
-# pytype static type analyzer
+# Статический анализатор pytype
 .pytype/
 
-# Cython debug symbols
+# Отладочные символы Cython
 cython_debug/
 
-# Local databases & user data
+# Локальные базы данных и пользовательские данные
 chroma_db/
 multiagent_artifacts/
 *.db
 
-# OS-specific files
+# Системные файлы ОС
 .DS_Store
 Thumbs.db
