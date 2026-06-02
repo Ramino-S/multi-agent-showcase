@@ -6,7 +6,7 @@ import subprocess
 from typing import List, Dict, Any, Optional
 from app.config import settings
 
-# Валидатор безопасности кода на основе AST для легковесного режима
+# AST-based code safety validator for lightweight execution mode
 BLOCKED_MODULES = {
     "os", "sys", "subprocess", "shutil", "socket", 
     "pty", "platform", "multiprocessing", "threading", "asyncio"
@@ -18,11 +18,11 @@ BLOCKED_FUNCTIONS = {
 
 
 def is_safe_code(code: str) -> tuple[bool, Optional[str]]:
-    """Валидация Python-кода с помощью AST для предотвращения вредоносных импортов или вызовов функций.
+    """Validate Python code using AST to prevent malicious imports or function calls.
     
-    ВНИМАНИЕ: Данный статический анализ носит рекомендательный характер для легковесного режима
-    и не гарантирует защиту от изощренных способов обхода (динамический импорт, exec/eval
-    с обфускацией). Полную изоляцию обеспечивает только Docker-песочница.
+    WARNING: This static analysis is advisory for lightweight mode
+    and does not guarantee protection against sophisticated bypass techniques (dynamic import, 
+    obfuscated exec/eval). Full isolation is only guaranteed by a Docker sandbox.
     """
     try:
         tree = ast.parse(code)
@@ -54,9 +54,9 @@ def is_safe_code(code: str) -> tuple[bool, Optional[str]]:
 
 
 def check_docker_available() -> bool:
-    """Проверка наличия и запуска Docker в хост-системе."""
+    """Check if Docker is available and running on the host system."""
     try:
-        # Использование shell=True для Windows во избежание проблем с поиском исполняемого файла docker
+        # Use shell=True for Windows to avoid problems finding the docker executable
         result = subprocess.run(
             ["docker", "ps"],
             stdout=subprocess.PIPE,
@@ -71,7 +71,7 @@ def check_docker_available() -> bool:
 
 
 class SandboxExecutor:
-    """Адаптивная песочница для безопасного выполнения кода на Python."""
+    """Adaptive sandbox for secure execution of Python code."""
 
     def __init__(self, mode: Optional[str] = None):
         self.mode = mode or settings.SANDBOX_MODE
@@ -83,7 +83,7 @@ class SandboxExecutor:
             self.mode = "lightweight"
 
     def execute(self, code: str, input_files: Optional[List[Dict[str, Any]]] = None) -> Dict[str, Any]:
-        """Выполнение Python-скрипта с копированием файлов сессии в рабочую директорию."""
+        """Execute a Python script, copying session files to the working directory."""
         if self.mode == "disabled":
             return {
                 "success": False,
